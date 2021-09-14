@@ -1,15 +1,26 @@
 const express = require('express');
 const app = express();
-var multiparty = require('multiparty');
-var fs = require('fs');
-app.use(express.static('public'));
 
+
+const swig = require('swig');
+const multiparty = require('multiparty');
+const fs = require('fs');
 const path = require('path');
+
+//设置swig页面不缓存
+
+app.set('view cache', false);
+
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'html');
+app.engine('html', swig.renderFile);
+app.disable('view cache');
+swig.setDefaults({ cache: false });
 // 上传文件存放目录
 let uploadDirPath = path.resolve(__dirname, './public/list');
 
 app.get('/', (req, res) => {
-  res.sendFile(`${__dirname}/index.html`);
+  res.render('index', { title: 'Express', fileList: fs.readdirSync(uploadDirPath).map(files => files) });
 });
 /* 上传 */
 app.post('/file/uploading', (req, res, next) => {
@@ -47,10 +58,11 @@ app.post('/file/uploading', (req, res, next) => {
   });
 });
 app.get('/file/list', (req, res, next) => {
-  res.send({
-    code: 200,
-    data: fs.readdirSync(uploadDirPath).map(files => files)
-  })
+  res.render('index', function (err, html) {
+    if (err) { console.log(err) }
+    res.send({ code: 200, fileList: fs.readdirSync(uploadDirPath).map(files => files) });
+  });
+
 })
 app.use(express.static('public'))
   .listen(1000);

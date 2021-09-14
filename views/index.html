@@ -19,21 +19,23 @@
       </div>
     </form> 
     <button class="btn btn-warning" id="upload">上传文件</button> 
-    <a class="btn btn-success" href='./xfj.apk' id="upload" download="xfj">下载文件</a> 
+    <!-- <a class="btn btn-success" href='./xfj.apk' id="upload" download="xfj">下载文件</a>  -->
     <div id="tbox">
       <div id="bar"></div>
     </div>
-     <h4>
-      <span id='status'>
-         上传文件名限制: xfj.apk
-      </span>
-    </h4>
+    
     <ul>
       <li></li>
     </ul>
+    {% for num in fileList %}
+      <li class="file-list">
+        <a href={{ './list/' + num }} download={{ num }}>{{ num }}</a>
+      </li>
+    {% endfor %}
+
   </div>
   </body>
-  <script src='assets/lib/jquery.js'></script>
-  <script src='assets/lib/xhrProcess.js'></script>
-  <script src='main/index.js'></script>
+  <script src='./assets/lib/jquery.js'></script>
+  <script src='./assets/lib/xhrProcess.js'></script>
+  <script src='./main/index.js'></script>
 </html>

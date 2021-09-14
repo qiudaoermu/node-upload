@@ -1,11 +1,12 @@
 $(function () {
-  const fetchFileList = () => {
+  const fetchFileList = (callback) => {
     $.ajax({
       type: 'get',
       url: "/file/list",
       success: function (res) {
         if (res.code == '200') {
           console.log(res.data)
+          callback && callback()
         }
       },
       fail: (params) => {
@@ -35,7 +36,9 @@ $(function () {
       success: function (data) {
         if (data == '200') {
           $('#bar').html('finish')
-          fetchFileList();
+          fetchFileList(() => {
+            window.location.reload()
+          });
         }
       },
       fail: (params) => {

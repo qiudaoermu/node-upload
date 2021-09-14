@@ -7,6 +7,9 @@ li {
   width: 50%;
   font-family: "system-ui";
 }
+.main .file-list {
+  margin-top: 20px;
+}
 .main h1 {
   color: #666;
   font-weight: 400;
