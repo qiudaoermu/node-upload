@@ -1,13 +1,12 @@
 const express = require('express');
-var compressing = require("compressing");
 const app = express();
 var multiparty = require('multiparty');
 var fs = require('fs');
-var deleteall = require('./until');
 app.use(express.static('public'));
 
 const path = require('path');
-let rootPath = path.resolve(__dirname, './public');
+// 上传文件存放目录
+let uploadDirPath = path.resolve(__dirname, './public/list');
 
 app.get('/', (req, res) => {
   res.sendFile(`${__dirname}/index.html`);
@@ -19,7 +18,7 @@ app.post('/file/uploading', (req, res, next) => {
   /* 设置编辑 */
   form.encoding = 'utf-8';
   // 设置文件存储路劲
-  form.uploadDir = rootPath;
+  form.uploadDir = uploadDirPath;
   // 设置文件大小限制
   form.maxFilesSize = 1000000 * 1024 * 1024;
   // form.maxFields = 1000;   //设置所有文件的大小总和//上传后处理
@@ -32,7 +31,7 @@ app.post('/file/uploading', (req, res, next) => {
 
       var inputFile = files.file[0];
       var uploadedPath = inputFile.path;
-      var dstPath = rootPath + '/' + inputFile.originalFilename;
+      var dstPath = uploadDirPath + '/' + inputFile.originalFilename;
       // 重命名为真实文件名
       fs.rename(uploadedPath, dstPath, (err) => {
         if (err) {
@@ -41,11 +40,17 @@ app.post('/file/uploading', (req, res, next) => {
           console.log('rename ok');
         }
       });
-    }
+    };
     res.writeHead(200, { 'content-type': 'text/plain;charset=utf-8' });
     res.write('200');
     res.end();
   });
 });
+app.get('/file/list', (req, res, next) => {
+  res.send({
+    code: 200,
+    data: fs.readdirSync(uploadDirPath).map(files => files)
+  })
+})
 app.use(express.static('public'))
   .listen(1000);

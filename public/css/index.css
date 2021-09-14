@@ -1,0 +1,35 @@
+ul,
+li {
+  list-style: none;
+}
+.main {
+  margin: 100px auto;
+  width: 50%;
+  font-family: "system-ui";
+}
+.main h1 {
+  color: #666;
+  font-weight: 400;
+}
+.main #upload {
+  margin-top: 20px;
+  outline: none;
+  border: none;
+}
+#tbox {
+  margin-top: 30px;
+  width: 720px;
+  background-color: #fff;
+  height: 50px;
+  border: 1px solid #ddd;
+}
+#bar {
+  width: 0px;
+  height: 50px;
+  background-color: #79b8ff;
+  text-align: center;
+  font-family: Tahoma;
+  color: #fff;
+  font-size: 18px;
+  line-height: 50px;
+}
