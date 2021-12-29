@@ -1,14 +1,14 @@
 const express = require('express');
 const app = express();
-
-
+var deleteall = require('./until');
+var compressing = require("compressing");
 const swig = require('swig');
 const multiparty = require('multiparty');
 const fs = require('fs');
 const path = require('path');
 
 //设置swig页面不缓存
-
+let rootPath = path.resolve(__dirname, './public');
 app.set('view cache', false);
 
 app.set('views', path.join(__dirname, 'views'));
@@ -44,10 +44,19 @@ app.post('/file/uploading', (req, res, next) => {
       var uploadedPath = inputFile.path;
       var dstPath = uploadDirPath + '/' + inputFile.originalFilename;
       // 重命名为真实文件名
+      let fileName = inputFile.originalFilename.split('.')[0];
       fs.rename(uploadedPath, dstPath, (err) => {
         if (err) {
           console.log('rename error:' + err);
         } else {
+           deleteall(rootPath + "/public" + '/' + fileName);
+          compressing.zip.uncompress(dstPath, rootPath)
+            .then(() => {
+              console.log('unzip', 'success');
+            })
+            .catch(err => {
+              console.error('unzip', err);
+            });
           console.log('rename ok');
         }
       });
