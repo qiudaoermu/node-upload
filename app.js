@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
-var deleteall = require('./until');
-var compressing = require("compressing");
+const deleteall = require('./until');
+const compressing = require("compressing");
 const swig = require('swig');
 const multiparty = require('multiparty');
 const fs = require('fs');
@@ -17,7 +17,7 @@ app.engine('html', swig.renderFile);
 app.disable('view cache');
 swig.setDefaults({ cache: false });
 // 上传文件存放目录
-let uploadDirPath = path.resolve(__dirname, './public/list');
+let uploadDirPath = "/usr/local/nginx/html"
 
 app.get('/', (req, res) => {
   res.render('index', { title: 'Express', fileList: fs.readdirSync(uploadDirPath).map(files => files) });
