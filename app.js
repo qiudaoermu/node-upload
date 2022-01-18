@@ -1,33 +1,36 @@
-const express = require('express');
+const express = require("express");
 const app = express();
-const deleteall = require('./until');
+const { deleteall, timestampToFile } = require("./until");
 const compressing = require("compressing");
-const swig = require('swig');
-const multiparty = require('multiparty');
-const fs = require('fs');
-const path = require('path');
+const swig = require("swig");
+const multiparty = require("multiparty");
+const fs = require("fs");
+const path = require("path");
 
 //设置swig页面不缓存
-let rootPath = path.resolve(__dirname, './public');
-app.set('view cache', false);
+let rootPath = "/usr/local/nginx/html";
+app.set("view cache", false);
 
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'html');
-app.engine('html', swig.renderFile);
-app.disable('view cache');
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "html");
+app.engine("html", swig.renderFile);
+app.disable("view cache");
 swig.setDefaults({ cache: false });
 // 上传文件存放目录
-let uploadDirPath = "/usr/local/nginx/html"
+let uploadDirPath = path.resolve(__dirname, "./public/list");
 
-app.get('/', (req, res) => {
-  res.render('index', { title: 'Express', fileList: fs.readdirSync(uploadDirPath).map(files => files) });
+app.get("/", (req, res) => {
+  res.render("index", {
+    title: "Express",
+    fileList: fs.readdirSync(uploadDirPath).map((files) => files),
+  });
 });
 /* 上传 */
-app.post('/file/uploading', (req, res, next) => {
+app.post("/file/uploading", (req, res, next) => {
   /* 生成multiparty对象，并配置上传目标路径 */
   var form = new multiparty.Form();
   /* 设置编辑 */
-  form.encoding = 'utf-8';
+  form.encoding = "utf-8";
   // 设置文件存储路劲
   form.uploadDir = uploadDirPath;
   // 设置文件大小限制
@@ -36,42 +39,46 @@ app.post('/file/uploading', (req, res, next) => {
   form.parse(req, (err, fields, files) => {
     var filesTemp = JSON.stringify(files, null, 2);
     if (err) {
-      console.log('parse error:' + err);
+      console.log("parse error:" + err);
     } else {
-      console.log('parse files:' + filesTemp);
+      console.log("parse files:" + filesTemp);
 
       var inputFile = files.file[0];
       var uploadedPath = inputFile.path;
-      var dstPath = uploadDirPath + '/' + inputFile.originalFilename;
+      const dstPath = uploadDirPath + "/" + "h5-" + timestampToFile() + ".zip";
       // 重命名为真实文件名
-      let fileName = inputFile.originalFilename.split('.')[0];
+      let fileName = inputFile.originalFilename.split(".")[0];
       fs.rename(uploadedPath, dstPath, (err) => {
         if (err) {
-          console.log('rename error:' + err);
+          console.log("rename error:" + err);
         } else {
-           deleteall(rootPath + "/public" + '/' + fileName);
-          compressing.zip.uncompress(dstPath, rootPath)
+          deleteall(rootPath + "/" + fileName);
+          compressing.zip
+            .uncompress(dstPath, rootPath)
             .then(() => {
-              console.log('unzip', 'success');
+              console.log("unzip", "success");
             })
-            .catch(err => {
-              console.error('unzip', err);
+            .catch((err) => {
+              console.error("unzip", err);
             });
-          console.log('rename ok');
+          console.log("rename ok");
         }
       });
-    };
-    res.writeHead(200, { 'content-type': 'text/plain;charset=utf-8' });
-    res.write('200');
+    }
+    res.writeHead(200, { "content-type": "text/plain;charset=utf-8" });
+    res.write("200");
     res.end();
   });
 });
-app.get('/file/list', (req, res, next) => {
-  res.render('index', function (err, html) {
-    if (err) { console.log(err) }
-    res.send({ code: 200, fileList: fs.readdirSync(uploadDirPath).map(files => files) });
+app.get("/file/list", (req, res, next) => {
+  res.render("index", function (err, html) {
+    if (err) {
+      console.log(err);
+    }
+    res.send({
+      code: 200,
+      fileList: fs.readdirSync(uploadDirPath).map((files) => files),
+    });
   });
-
-})
-app.use(express.static('public'))
-  .listen(1000);
+});
+app.use(express.static("public")).listen(1000);
