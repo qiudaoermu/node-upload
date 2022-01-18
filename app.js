@@ -81,4 +81,4 @@ app.get("/file/list", (req, res, next) => {
     });
   });
 });
-app.use(express.static("public")).listen(1000);
+app.use(express.static("public")).listen(9527);
