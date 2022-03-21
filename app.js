@@ -6,9 +6,9 @@ const swig = require("swig");
 const multiparty = require("multiparty");
 const fs = require("fs");
 const path = require("path");
-
+const { unzipPath } = require("./setting");
 //设置swig页面不缓存
-let rootPath = "/usr/local/nginx/html";
+
 app.set("view cache", false);
 
 app.set("views", path.join(__dirname, "views"));
@@ -52,9 +52,9 @@ app.post("/file/uploading", (req, res, next) => {
         if (err) {
           console.log("rename error:" + err);
         } else {
-          deleteall(rootPath + "/" + fileName);
+          deleteall(unzipPath + "/" + fileName);
           compressing.zip
-            .uncompress(dstPath, rootPath)
+            .uncompress(dstPath, unzipPath)
             .then(() => {
               console.log("unzip", "success");
             })
