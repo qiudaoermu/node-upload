@@ -41,8 +41,11 @@ app.post("/file/uploading", (req, res, next) => {
     if (err) {
       console.log("parse error:" + err);
     } else {
-      console.log("parse files:" + filesTemp);
-
+      // console.log("parse files:" + filesTemp);
+      console.log(
+        files,
+        "****************************************************************"
+      );
       var inputFile = files.file[0];
       var uploadedPath = inputFile.path;
       const dstPath = uploadDirPath + "/" + "h5-" + timestampToFile() + ".zip";

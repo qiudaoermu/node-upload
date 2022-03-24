@@ -1,0 +1,66 @@
+@import "uview-ui/index.scss";
+@import "static/style/colorui.css";
+@import "static/style/iconfont.css";
+
+/* 字体文件 */
+@font-face {
+  font-family: OPPOSANS;
+  src: url("~@/static/font/OPPOSANS-M-subfont.ttf");
+}
+.font-OPPOSANS {
+  font-family: OPPOSANS;
+}
+page {
+  -webkit-overflow-scrolling: touch; // ios滑动不流畅
+  height: 100%;
+  background: #f6f6f6;
+  width: 100%;
+  font-size: 30rpx;
+  font-family: OPPOSANS;
+  word-break: break-all; //英文文本不换行
+  white-space: normal;
+  color: $u-main-color;
+}
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  color: transparent;
+  display: none;
+}
+.u-flex-1 {
+  flex: 1;
+}
+.u-m-l-6 {
+  margin-left: 6upx;
+}
+.u-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 23%);
+  grid-gap: 2px 10px;
+  justify-content: center;
+}
+.ml-10 {
+  margin-left: 10rpx;
+}
+.ml-17 {
+  margin-left: 17rpx;
+}
+
+.uni-page-head-search-placeholder {
+  font-size: 22rpx;
+  font-family: FZLTHK;
+  font-weight: normal;
+  color: #cdcbcb;
+  &:before {
+    font-size: 22rpx;
+  }
+}
+
+.confirm-btn {
+  padding: 0 76rpx;
+  margin-right: auto;
+  border-radius: 100px;
+  height: 56rpx;
+  line-height: 56rpx;
+  font-size: $font-base + 2;
+}

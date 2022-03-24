@@ -6,6 +6,7 @@
   },
   "dependencies": {
     "compressing": "^1.5.1",
-    "multiparty": "^4.2.2"
+    "multiparty": "^4.2.2",
+    "needle": "^3.0.0"
   }
 }
