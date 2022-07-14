@@ -1,12 +1,13 @@
-## 文件上传服务
 
-启动 pm2 start app.js--watch or node app.js
+## 🏠🏠 大文件上传实践
 
-停止 pm2 stop app.js
 
-上传请命名为 xfj.apk
+### 1.前端使用 formData + post 上传
 
-## 测试火车
+### 2.blob.slice 分片
 
-1. 文件能否正确上传 大小, 命名
-2. 文件正确能否下载, 覆盖
+### 3.后端接受，multiparty解析，接受分片，放在临时文件夹
+
+### 4.合并分片为一个文件
+
+
