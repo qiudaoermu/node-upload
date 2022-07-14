@@ -11,3 +11,17 @@
 ### 4.合并分片为一个文件
 
 
+
+### Install
+---
+```
+npm install
+```
+### Run
+---
+
+```
+npm start
+```
+
+Open in browser 127.0.0.1:1000
