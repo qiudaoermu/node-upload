@@ -58,14 +58,13 @@
   <script>
     const xhr = new XMLHttpRequest();
     const url = "http://127.0.0.1:1000/file/uploading"
-
+    const mergrUrl = "http://127.0.0.1:1000/file/mergrChunk"
     const handleUpload = () => {
         $("#file").click();
     }
     function uploadFile() {
      
       const file = document.getElementById('file').files[0];
-  
       const postAjax = (url,fd) => {
         return new Promise((resolve, reject) => {
           xhr.open('POST', url, true);
@@ -82,18 +81,27 @@
       const chunkSize = 1024;
       chunkedUpload(file);
       async function chunkedUpload(file) {
-        for (let start = 0; start < file.size + chunkSize; start += chunkSize) {
+        for (let start = 0; start < file.size; start += chunkSize) {
           const chunk = file.slice(start, start + chunkSize); // 分片 blob对象
           console.log(chunk, "--------chunk--------");
           const fd = new FormData();
           fd.append("chunk", chunk);
           fd.append("hash", start);
-          fd.append("per", chunkSize)
+          fd.append("fileName", file.name)
           // 上传 利用async实现，同步请求
+            let per = Math.floor(100 * start / file.size );
+
+          if ((file.size - start) < chunkSize) {
+            per = 100;
+          }
           await postAjax(url, fd).then((res) =>{
-            const per = Math.floor(100 * start / file.size );
             $('#bar').css({'width': per + "%",});
-            $('#bar').html(per+ '%');
+            $('#bar').html(per + '%');
+            if (per >= 100) {
+              postAjax(mergrUrl, fd).then(res => {
+               
+              })
+            }
           });
         }
       };
