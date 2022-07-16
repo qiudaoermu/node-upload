@@ -47,7 +47,6 @@ const write = (item, writeable) => {
     let readable = fs.createReadStream(destPath);
     // 把chip 写入 new.txt中
     readable.pipe(writeable, { end: false });
-
     readable.on("end", () => {
       resolve();
       // 关闭流之前立即写入最后一个额外的数据块
