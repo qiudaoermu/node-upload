@@ -1,11 +1,14 @@
 const express = require("express");
+const https = require("https"); 
+const spdy = require("spdy");
+
 const app = express();
 app.use(express.static("public"));
 const multiparty = require("multiparty");
 const fs = require("fs-extra");
 
 const path = require("path");
-
+const port = 1000;
 
 app.get("/", (req, res) => {
   res.sendFile(`${__dirname}/index.html`);
@@ -33,7 +36,7 @@ app.post("/file/uploading", (req, res, next) => {
     await fs.move(chunk.path, `${chunkDir}/${hash}`);
 
     res.writeHead(200, { "content-type": "text/plain;charset=utf-8" });
-    res.write("200");
+    res.write(JSON.stringify({ hash }));
     res.end();
   });
 });
@@ -51,4 +54,23 @@ app.post("/file/mergrChunk", async (req, res, next) => {
   res.end();
 });
 
-app.use(express.static("public")).listen(1000);
+
+
+
+app.use(express.static("public"));
+
+const options = {
+  key: fs.readFileSync(__dirname + "/server.key"),
+  cert: fs.readFileSync(__dirname + "/server.crt"),
+};
+
+
+
+spdy.createServer(options, app).listen(port, (error) => {
+  if (error) {
+    console.error(error);
+    return process.exit(1);
+  } else {
+    console.log("Listening on port: " + port + ".");
+  }
+});

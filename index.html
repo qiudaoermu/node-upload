@@ -57,67 +57,91 @@
   <script src='assets/lib/jquery.js'></script>
   <script>
     
-    const url = "http://127.0.0.1:1000/file/uploading"
-    const mergrUrl = "http://127.0.0.1:1000/file/mergrChunk"
+    const url = "https://127.0.0.1:1000/file/uploading"
+    const mergrUrl = "https://127.0.0.1:1000/file/mergrChunk"
+    let fileName, per = 0, postQueue = [];
+    const chunkSize = 1024 * 10;
     const handleUpload = () => {
         $("#file").click();
     }
-    const postAjax = (url,fd) => {
+    const postAjax = (url,fd , start, filesize) => {
       const xhr = new XMLHttpRequest();
       return new Promise((resolve, reject) => {
         xhr.open('POST', url, true);
         xhr.onreadystatechange = function() {
           if (xhr.readyState == 4 && xhr.status == 200) {
-            console.log(xhr.responseText, "responseText" )
-            resolve(xhr.responseText)
+            // console.log(xhr.responseText, "responseText" )
+            const res = JSON.parse(xhr.responseText)
+            console.log(res)
+            if (res.hash) {
+              window.localStorage.setItem(fileName, res.hash);
+            }
+            $('#bar').css({'width': per + "%",});
+            $('#bar').html(per + '%');
+            if (filesize - res.hash <= chunkSize ) {
+              postAjax(mergrUrl, fd).then(res => {
+                let fileName = window.localStorage.getItem('fileName');
+                window.localStorage.removeItem(fileName);
+                window.localStorage.removeItem('fileName');
+              })
+            }
+            resolve(res)
           }
         };
         xhr.send(fd);
       })
     }
-    const chunkedUpload = async (file) => {
-      const chunkSize = 1024;
-      let postQueue = [];
-      const parallelNum = 11; //谷歌最大线程数量 大于11后提效不明显，node.js在1s内最多异步处理11个请求
-      for (let start = 0; start <= file.size; start += chunkSize) {
+    const chunkedUpload = async (file, pointHash) => {
+      
+      
+      const parallelNum = 25; //谷歌最大线程数量 大于11后提效不明显，node.js在1s内最多异步处理11个请求
+      for (let start = pointHash; start <= file.size; start += chunkSize) {
         const chunk = file.slice(start, start + chunkSize); // 分片 blob对象
         const fd = new FormData();
         fd.append("chunk", chunk);
         fd.append("hash", start);
         fd.append("fileName", file.name)
-        // 上传 利用async实现，同步请求
-        let per = Math.floor(100 * start / file.size );
+        window.localStorage.setItem('fileName', file.name);
+        fileName = file.name
+        // 线程并发
+        if (postQueue.length < parallelNum) {
+          postQueue.push({post: (postAjax(url, fd, start, file.size)), hash: start} )
+        }
+       
+        per = Math.floor(100 * start / file.size );
 
         if ((file.size - start) < chunkSize) {
           per = 100;
         }
-      
-        // 一个线程使用完，再发送另一个
-      
-        if (postQueue.length < parallelNum) {
-          postQueue.push(postAjax(url, fd))
-        }
-          
         if (postQueue.length >= parallelNum || per === 100) {
           // 6个请求并发
-          await Promise.all(postQueue).then(res => {
-            postQueue = [];
-            $('#bar').css({'width': per + "%",});
-            $('#bar').html(per + '%');
-            if (per >= 100) {
-            postAjax(mergrUrl, fd).then(res => {
-              
-            })
-          }
+          const postApiQueues = postQueue.map(item => item.post)
+          await Promise.any(postApiQueues).then(res => {
+            let hash = res.hash
+            console.log(hash, "hash")
+            const index = postQueue.find(item => item.hash = hash)
+            postQueue.splice(index, 1)
+          
           }).catch(err => {
               console.error(err)
             })
         }
+        
+        
       }
     };
-    function uploadFile() {
+    const blockUpload = (file) => {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("fileName", file.name)
+      postAjax(url, fd);
+    }
+    async function  uploadFile() {
       const file = document.getElementById('file').files[0];
-      chunkedUpload(file)
+      let fileName = window.localStorage.getItem('fileName');
+      const pointHash = window.localStorage.getItem(fileName) || 0;
+      await chunkedUpload(file, +pointHash)
+      console.log('end')
     }
 
 
