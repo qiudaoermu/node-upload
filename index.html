@@ -94,7 +94,7 @@
     const chunkedUpload = async (file, pointHash) => {
       
       
-      const parallelNum = 25; //谷歌最大线程数量 大于11后提效不明显，node.js在1s内最多异步处理11个请求
+      const parallelNum = 10; //谷歌最大线程数量 大于11后提效不明显，node.js在1s内最多异步处理11个请求
       for (let start = pointHash; start <= file.size; start += chunkSize) {
         const chunk = file.slice(start, start + chunkSize); // 分片 blob对象
         const fd = new FormData();
